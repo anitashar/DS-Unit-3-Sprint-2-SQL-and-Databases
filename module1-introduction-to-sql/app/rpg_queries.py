@@ -46,12 +46,17 @@ FROM armory_item, armory_weapon
 """
 
 
-query8 ="""SELECT character_id,count(DISTINCT item_id) as item FROM charactercreator_character_inventory
-GROUP BY character_id
-LIMIT 20
-"""
 
-query9 = """SELECT a.character_id,count(DISTINCT c.item_ptr_id) as number_of_weapons
+
+query8= """ SELECT cc.name,count(inv.item_id) as item_count
+FROM charactercreator_character as cc
+LEFT JOIN charactercreator_character_inventory as inv
+ON cc.character_id = inv.character_id
+GROUP BY cc.name
+ORDER by cc.name
+LIMIT 20 """
+
+query9 = """SELECT a.character_id,count(c.item_ptr_id) as number_of_weapons
 FROM charactercreator_character_inventory as a
 LEFT JOIN armory_item as b ON a.item_id = b.item_id
 LEFT JOIN armory_weapon as c ON b.item_id = c.item_ptr_id
@@ -100,53 +105,58 @@ FROM (
 # print("RESULTS 2", results2)
 print("----------")
 result = curs.execute(query).fetchone()
-print("RESULTS FOR CHARACTERCREATOR_CHARACTER", result)
+print("RESULTS FOR CHARACTERCREATOR_CHARACTER")
 print(result["character_count"])
 print("-------------")
 result1 = curs.execute(query1).fetchone()
-print("Results for charactercreator_cleric", result1)
+print("Results for charactercreator_cleric")
 print(result1["character_ptr_count"])
 print("---------")
 result2 = curs.execute(query2).fetchone()
-print("Results for charactercreator_fighter", result2)
+print("Results for charactercreator_fighter")
 print(result2["character_ptr_count"])
 print("---------")
 result3 = curs.execute(query3).fetchone()
-print("Results for charactercreator_mage", result3)
+print("Results for charactercreator_mage")
 print(result3["character_ptr_count"])
 print('--------')
 result4 = curs.execute(query4).fetchone()
-print("Results for charactercreator_thief", result4)
+print("Results for charactercreator_thief")
 print(result4["character_ptr_count"])
 print("-------------")
 result5 = curs.execute(query5).fetchone()
-print("Results for total Items", result5)
+print("Results for total Items")
 print(result5["total_item"])
 print("-------------")
 result6 = curs.execute(query6).fetchone()
-print("Results for total Items", result6)
+print("Results for total Items")
 print(result6["number_of_weapons"])
 print("---------------------------")
 result7 = curs.execute(query7).fetchone()
-print("Results for total non weapon", result7)
+print("Results for total non weapon")
 print(result7["total_non_weapons"])
 print("-------------------------")
 result8 = curs.execute(query8).fetchall()
+for rw in result8:
+  print(rw[0],rw[1])
 
-print("Total items for each character", result8)
 
+print("Total items for each character")
 
+# How many Weapons does each character have? (Return first 20 rows)
 print("----------------------------")
 result9 = curs.execute(query9).fetchall()
+for rw in result9:
+  print(rw['character_id'],rw['number_of_weapons'])
+print("Total weapons for each character")
 
-print("Total weapons for each character", result9)
 print("----------------------------")
 result10 = curs.execute(query10).fetchone()
-print("avg_items for each character", result10)
+print("avg_items for each character")
 print(result10["avg_items"])
 print("----------------------------")
 result11 = curs.execute(query11).fetchone()
-print("avg_weapon for each character", result11)
+print("avg_weapon for each character")
 print(result11["avg_weapon"])
 
 
