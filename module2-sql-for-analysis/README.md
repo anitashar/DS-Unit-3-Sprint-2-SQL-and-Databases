@@ -67,3 +67,14 @@ skill and is OK if you don't get to it at all), but it is a powerful and
 widely-used web application framework. Also, the Django ORM can connect to a
 variety of SQL backends, and a very typical setup is to use SQLite for (initial)
 local development but PostgreSQL for deployment.
+
+
+# setup
+create a new file in the root die called ".env" and place contentslike the following inside(obtain credentials to a pg database):
+```sh
+DB_HOST = "________________________"
+DB_USER = "________________________"
+DB_NAME = "________________________"
+DB_PASSWORD = "______________________"
+
+```
