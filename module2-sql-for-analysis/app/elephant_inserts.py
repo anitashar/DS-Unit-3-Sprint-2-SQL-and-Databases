@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import execute_values
 import json
-# import pandas as pd
+import pandas as pd
 
 load_dotenv()
 
