@@ -1,12 +1,11 @@
+# app/rpg_postgreSQL.py
 
-
-import sqlite3 as sq
-from dotenv import load_dotenv
 import os
-import psycopg2
 import pandas as pd
-
-
+import sqlite3
+from dotenv import load_dotenv
+import psycopg2
+from psycopg2.extras import execute_values
 
 
 load_dotenv() #> loads contents of the .env file into the script's environment
@@ -16,92 +15,62 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 
-conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
-print(type(conn)) #> <class ‘psycopg2.extensions.connection’>
-cur = conn.cursor()
-print(type(cur)) #> <class ‘psycopg2.extensions.cursor’>
+
+#Read the db file
 DB_FILEPATH = os.path.join(os.path.dirname(__file__), "..", "data", "rpg_db.sqlite3")
-conn = sq.connect(DB_FILEPATH)
+connection = sqlite3.connect(DB_FILEPATH)
+print(type(connection)) #> <class 'sqlite3.Connection'>
 
+cursor = connection.cursor()
+print(type(cursor)) #> <class 'sqlite3.Cursor'>
 
-# # Get the data from sqlite3
-# sl_conn = sqlite3.connect('rpg_db.sqlite3')
-# results = sl_conn.execute('SELECT * FROM charactercreator_character;').fetchall()
+character = cursor.execute("SELECT * FROM charactercreator_character").fetchall()
 
+#Connect to a PG database - in this case elephant SQL
+connection = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST)
+print(type(connection)) #>
 
-#  creating table in Postgres 
-create_character_table = """ CREATE TABLE  charactercreator_character (
+cursor = connection.cursor()
+print(type(cursor)) #>
+
+#CREATE TABLE:
+table_creation_query = """
+CREATE TABLE IF NOT EXISTS charactercreator_character (
     character_id SERIAL PRIMARY KEY,
     name varchar(30),
-    level int,
-    exp int,
-    hp int,
-    strength int,
-    intelligence int,
-    dexterity int,
-    wisdom int);
-
-    """
-
-# query = """ SELECT * FROM charactercreator_character;  """
-
-cur.execute(create_character_table)
-results = cur.fetchall()
-print(type(results))
-print(results)
+    level integer,
+    exp integer,
+    hp integer,
+    strength integer,
+    intelligence integer,
+    dexterity integer,
+    wisdom integer
+);
+"""
+cursor.execute(table_creation_query)
 
 
-
-# create table 
-# #!/usr/bin/env python
-# """Example of moving data from rpg_db.sqlite3 to PostgreSQL."""
-
-# import sqlite3
-# import psycopg2 as pg
-# import os
-# from dotenv import load_dotenv
-# load_dotenv()
-
-# # Get the data from sqlite3
-# sl_conn = sqlite3.connect('rpg_db.sqlite3')
-# results = sl_conn.execute('SELECT * FROM charactercreator_character;').fetchall()
+#INSERT DATA INTO TABLE
+insertion_query = """INSERT INTO charactercreator_character (
+    character_id, 
+    name, 
+    level, 
+    exp, 
+    hp, 
+    strength, 
+    intelligence, 
+    dexterity, 
+    wisdom)
+    VALUES %s"""
 
 
-# # Assume user defines database parameters
-# # ____ Connect to an ElephantSQL __________
-# dbname = os.getenv("DS_DB_NAME")
-# user = os.getenv("DS_DB_USER")
-# host = os.getenv("DS_DB_HOST")
-# passw = os.getenv("DS_DB_PASSWORD")
-
-# pg_conn = pg.connect(dbname=dbname, user=user,
-#                      password=passw, host=host)
+# cursor.execute(insertion_query)
+execute_values(cursor, insertion_query, character)
 
 
-# pg_curs = pg_conn.cursor()
 
-# #_  Create table  in PostgreSQL
-# create_character_table = """CREATE TABLE charactercreator_character (
-#   character_id SERIAL PRIMARY KEY,
-#   name varchar(30),
-#   level int,
-#   exp int,
-#   hp int,
-#   strength int,
-#   intelligence int,
-#   dexterity int,
-#   wisdom int
-# );"""
-# pg_curs.execute(create_character_table)
-
-
-# #  ___ insert all  data rows
-# for result in results:
-#     insert_result = """INSERT INTO charactercreator_character
-#     (name, level, exp, hp, strength, intelligence, dexterity, wisdom)
-#     VALUES""" + str(result[1:])
-#     print (insert_result)
-#     pg_curs.execute(insert_result)
-
-# #____  commit inserts to database  (finalize changes)
-# pg_conn.commit()
+#commit data
+connection.commit()
+#close data
+cursor.close()
+connection.close()
