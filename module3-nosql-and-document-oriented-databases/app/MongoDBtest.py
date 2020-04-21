@@ -1,7 +1,6 @@
 
 
-# client = pymongo.MongoClient("mongodb+srv://amybeisel:<password>@cluster0-3yvja.mongodb.net/test?retryWrites=true&w=majority")
-# db = client.test
+
 
 # app/mongo_queries.py
 
